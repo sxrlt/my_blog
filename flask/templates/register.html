@@ -1,0 +1,187 @@
+
+{% extends 'base.html' %}
+
+{% block title %}
+   爱家-注册
+{% endblock %}
+
+{% block css %}
+   {{ super() }}
+   <link href="/static/css/ihome/register.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+        <div class="logo-bar"><a href="/"><img src="/static/images/logo@128x59.png"></a></div>
+        <form class="form-register">
+            <div class="form-group form-group-lg">
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-mobile fa-2x fa-fw"></i></div>
+                    <input type="number" onblur="panduan_phone();" class="form-control" name="mobile" id="mobile" placeholder="手机号" required>
+                </div>
+            </div>
+            <div class="error-msg" id="mobile-err"><i class="fa fa-exclamation-circle"></i><span></span></div>
+            <div class="form-group form-group-lg">
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-envelope-o fa-lg fa-fw"></i></div>
+                    <input type="text" onblur="panduan_email();" class="form-control" id="email" placeholder="邮箱" required>
+                </div>
+            </div>
+             <!--<div class="form-group form-group-lg">-->
+                <!--<div class="input-group">-->
+                    <!--<div class="input-group-addon"><i class="fa fa-envelope-o fa-lg fa-fw"></i></div>-->
+                    <!--<input type="text" class="form-control" id="e-mail" placeholder="输入邮箱验证码" required>-->
+                    <!--<div class="phonecode input-group-addon">-->
+                        <!--<a class="phonecode-a" href="javascript:;" onclick="">获取验证码</a>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="error-msg" id="phone-code-err"><i class="fa fa-exclamation-circle"></i><span></span></div>
+            <div class="form-group form-group-lg">
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-lock fa-lg fa-fw"></i></div>
+                    <input type="password" onblur="panduan_password();" class="form-control" name="password" id="password" placeholder="密码" required>
+                </div>
+            </div>
+            <div class="error-msg" id="password-err"><i class="fa fa-exclamation-circle"></i><span></span></div>
+            <div class="form-group form-group-lg">
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-lock fa-lg fa-fw"></i></div>
+                    <input type="password" onblur="panduan_password2();" class="form-control" name="password2" id="password2" placeholder="确认密码" required>
+                </div>
+            </div>
+            <div class="error-msg" id="password2-err"><i class="fa fa-exclamation-circle"></i><span></span></div>
+            <div class="form-group form-group-lg">
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-image fa-lg fa-fw"></i></div>
+                    <input type="text" class="form-control" id="user_code" name="imagecode" id="imagecode" placeholder="验证码" required>
+                    <div class="input-group-addon image-code" id="code" onclick="Code();"></div>
+                </div>
+            </div>
+            <div class="error-msg" id="image-code-err"><i class="fa fa-exclamation-circle"></i><span></span></div>
+            <button type="submit" class="btn btn-lg btn-theme btn-block">立即注册</button>
+            <p class="login-a">已有账号，<a href="{{ url_for('user.login') }}">立即登陆</a></p>
+        </form>
+    </div>
+{% endblock %}
+
+{% block js %}
+{{ super() }}
+<!--<script src="/static/js/ihome/register.js"></script>-->
+<script>
+    Code();
+    function Code(){
+        $.ajax({
+            url: '/user/code/',
+            dataType: 'json',
+            type: 'GET',
+            success: function(data){
+               $('#code').text(data.code);
+            }
+        })
+    }
+    function panduan_code(){
+        var code = $('#user_code').val();
+        var code1 = $('#code').text()
+        if(code != code1){
+            $("#image-code-err span").html("验证码错误!");
+            $("#image-code-err").show();
+            $("#user_code").val('');
+            Code();
+            return;
+        }
+        $("#image-code-err").hide();
+    }
+    function panduan_email(){
+        var reg_email = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/;
+        var email = $('#email').val();
+        if(!reg_email.test(email)){
+            $("#phone-code-err span").html("请输入正确的邮箱格式!");
+            $("#phone-code-err").show();
+            return;
+        }
+        $("#phone-code-err").hide();
+    }
+    function panduan_password(){
+        var reg_password =/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[~!@#$%^&*()_+`\-={}:";'<>?,.\/]).{6,18}$/;
+        var password = $('#password').val();
+        if(!reg_password.test(password)){
+            $("#password-err span").html("密码须为6-18位字母、数字、特殊符号!");
+            $("#password-err").show();
+            return;
+        }
+        $("#password-err").hide();
+
+    }
+    function panduan_password2(){
+        var password = $('#password').val();
+        var password2 = $('#password2').val();
+        if(password != password2){
+            $("#password2-err span").html("两次密码不一致!");
+            $("#password2-err").show();
+            return;
+        }
+        $("#password-err2").show();
+    }
+    function panduan_phone(){
+        var reg_phone = /^(((13[0-9]{1})|(14[0-9]{1})|(17[0]{1})|(15[0-3]{1})|(15[5-9]{1})|(18[0-9]{1}))+\d{8})$/;
+        var phone = $('#mobile').val();
+        if(!reg_phone.test(phone)){
+            $("#mobile-err span").html("请输入正确的手机格式!");
+            $("#mobile-err").show();
+            return;
+        }
+        $("#mobile-err").hide();
+    }
+    $(".form-register").submit(function(e){
+        e.preventDefault();
+        if(e && e.preventDefault){
+           e.preventDefault();
+        }
+        panduan_phone();
+        panduan_code();
+        panduan_email();
+        panduan_password();
+        var email = $('#email').val();
+        var password = $('#password').val();
+        var password2 = $('#password2').val();
+        var phone = $('#mobile').val();
+        var code = $('#user_code').val();
+        var code1 = $('#code').text()
+        if(code != code1){
+            $("#image-code-err span").html("验证码错误!");
+            $("#image-code-err").show();
+            $("#user_code").val('');
+            Code();
+            return;
+        }
+        $("#image-code-err").hide();
+        if(phone == '' || email == '' || password == '' || password2 == '' || code == ''){
+            return;
+        }
+        $.ajax({
+            url: '/user/register/',
+            data:{'phone': phone, 'email': email, 'password': password, 'password2': password2},
+            dataType: 'json',
+            type: 'POST',
+            success: function(data){
+                if(data.code == 10002 ){
+                    $("#mobile-err span").html("手机号已存在");
+                    $('#mobile-err').show()
+                }else{
+                    if(data.code == 200){
+                         if(confirm('您已注册成功是否跳转到登陆界面')){
+                             location.href = '../login/'
+                         }
+                    }else{
+                        alert('注册失败')
+                    }
+                }
+            },
+            error: function(data){
+                alert('注册失败')
+            }
+        })
+    })
+</script>
+{% endblock %}
